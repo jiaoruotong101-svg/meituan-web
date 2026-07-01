@@ -1,0 +1,66 @@
+# 城市配置 - 15 个目标城市（网页版）
+# cityId: 美团 H5 网页版城市 ID（已实测验证）
+# target_count: 每个城市目标抓取酒店数
+
+cities:
+  - name: 北京
+    cityId: 1
+    target_count: 200
+
+  - name: 上海
+    cityId: 10
+    target_count: 200
+
+  - name: 广州
+    cityId: 20
+    target_count: 200
+
+  - name: 深圳
+    cityId: 30
+    target_count: 200
+
+  - name: 天津
+    cityId: 40
+    target_count: 200
+
+  - name: 杭州
+    cityId: 50
+    target_count: 200
+
+  - name: 南京
+    cityId: 55
+    target_count: 200
+
+  - name: 青岛
+    cityId: 60
+    target_count: 200
+
+  - name: 长沙
+    cityId: 70
+    target_count: 200
+
+  - name: 苏州
+    cityId: 80
+    target_count: 200
+
+  # 以下城市 cityId 待实测验证，暂用占位值
+  # 如果爬取时显示别的城市，请把终端的 cityId 告诉我
+  - name: 成都
+    cityId: 75
+    target_count: 200
+
+  - name: 重庆
+    cityId: 85
+    target_count: 200
+
+  - name: 武汉
+    cityId: 95
+    target_count: 200
+
+  - name: 西安
+    cityId: 105
+    target_count: 200
+
+  - name: 厦门
+    cityId: 115
+    target_count: 200

@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================
+// 美团酒店爬虫 - 数据模型
+// Python 爬虫通过 sqlite3 模块直接写入此数据库
+// Next.js 看板通过 Prisma 读取
+// =====================================================
+
+/// 酒店主表 - 每家酒店一条记录，按 hotelId 去重
+model Hotel {
+  // === 元数据 ===
+  hotelId           String   @id                   /// 美团酒店ID（去重主键）
+  crawlTime         DateTime @default(now())       /// 爬取时间
+  city              String                          /// 城市，如"天津"
+  searchKeyword     String?                         /// 搜索关键词，如"天津站"
+  checkinDate       String?                         /// 入住日期 MM.DD
+  checkoutDate      String?                         /// 离店日期 MM.DD
+
+  // === 列表页字段 ===
+  name              String                          /// 酒店名称
+  hotelType         String  @default("[]")          /// 类型 JSON 数组，如 ["经济型","青年旅舍"]
+  score             Float?                          /// 评分，如 4.7
+  scoreLabel        String?                         /// 评分文字，如"棒"/"超棒"/"不错"
+  reviewQuote       String?                         /// 评价语，如"设施设备都特别齐全"
+  locationDesc      String?                         /// 位置描述，如"近张学良故居"
+  tags              String  @default("[]")          /// 标签 JSON 数组
+  lowStockAlert     String?                         /// 低价房提醒，如"低价房仅剩3间"
+  originalPrice     Float?                          /// 原价，如 45
+  currentPrice      Float                           /// 现价，如 33
+  consumptionCount  String?                         /// 消费量，如"5000+消费"
+  bookingStatus     String?                         /// 预订状态，如"2分钟前有人预订"
+  promotions        String  @default("[]")          /// 促销 JSON 数组
+
+  // === 详情页字段 ===
+  address           String?                         /// 详细地址
+  openYear          String?                         /// 开业年份
+  decorateYear      String?                         /// 装修年份
+  starLevel         String?                         /// 星级
+  facilities        String  @default("[]")          /// 设施 JSON 数组
+  nearbyPois        String  @default("[]")          /// 附近POI JSON 数组
+  commentCount      Int     @default(0)             /// 评论数量（只要数量）
+  imageCount        Int     @default(0)             /// 图片数量（不下载图，只计数）
+
+  @@index([city])
+  @@index([crawlTime])
+  @@index([currentPrice])
+  @@index([score])
+}
+
+/// 爬取会话 - 记录每次爬取任务的状态
+model CrawlSession {
+  id          String    @id @default(cuid())
+  city        String                            /// 目标城市
+  startedAt   DateTime  @default(now())         /// 开始时间
+  endedAt     DateTime?                         /// 结束时间
+  hotelCount  Int       @default(0)              /// 已爬酒店数
+  targetCount Int       @default(200)            /// 目标数量
+  status      String    @default("pending")      /// pending/running/completed/failed/paused
+  errorMsg    String?                           /// 错误信息
+  checkinDate String?                           /// 入住日期
+  checkoutDate String?                          /// 离店日期
+
+  @@index([city])
+  @@index([status])
+  @@index([startedAt])
+}
+
+/// 风控告警 - 验证码、限流、异常等
+model CrawlAlert {
+  id        String   @id @default(cuid())
+  type      String                            /// captcha/rate_limit/error/network
+  message   String                            /// 告警内容
+  city      String?                           /// 发生城市
+  resolved  Boolean  @default(false)          /// 是否已处理
+  createdAt DateTime @default(now())          /// 发生时间
+
+  @@index([createdAt])
+  @@index([resolved])
+}
