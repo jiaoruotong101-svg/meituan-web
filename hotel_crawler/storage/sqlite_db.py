@@ -90,6 +90,24 @@ class Database:
             )
         return cur.fetchall()
 
+    def clear_city(self, city: str) -> int:
+        """删除指定城市的所有酒店记录（爬取前清空旧数据，避免累积）。
+
+        Returns:
+            被删除的行数
+        """
+        try:
+            cur = self.conn.execute("DELETE FROM Hotel WHERE city=?", (city,))
+            self.conn.commit()
+            deleted = cur.rowcount
+            if deleted > 0:
+                logger.info(f"已清空 {city} 的 {deleted} 条旧酒店记录")
+            return deleted
+        except sqlite3.Error as e:
+            logger.error(f"clear_city 失败: {e}")
+            self.conn.rollback()
+            raise
+
     def fetch_all_hotels_by_city(self, city: str, limit: int = 200) -> List[tuple]:
         """读取指定城市的酒店元组（用于详情页爬取）。返回 tuple 列表。"""
         cur = self.conn.execute(

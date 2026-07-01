@@ -160,6 +160,9 @@ def cmd_crawl_web(args: argparse.Namespace) -> int:
             session_id = db.create_session(city_name, target=target,
                                            checkin_date=checkin, checkout_date=checkout)
 
+            # 清空该城市旧数据，避免多次爬取累积导致导出行数 > 本次爬取数
+            db.clear_city(city_name)
+
             # 爬列表
             list_crawler = ListCrawler(page, db, city_name, city_id)
             count = list_crawler.crawl(
